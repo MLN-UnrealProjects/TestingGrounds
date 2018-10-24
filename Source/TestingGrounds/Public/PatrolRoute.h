@@ -17,7 +17,7 @@ class TESTINGGROUNDS_API UPatrolRoute : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UPatrolRoute();
-
+	UFUNCTION(BlueprintCallable)
 	TArray<AActor*> GetPatrolLocations() const { return PatrolLocations; };
 private:
 	UPROPERTY(EditAnywhere, Category = "Patrol Route", meta = (AllowPrivateAccess = "true"))
