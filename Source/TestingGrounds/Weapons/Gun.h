@@ -23,18 +23,9 @@ public:
 	// Sets default values for this actor's properties
 	AGun();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-
-public:	
 	/** Fires a projectile. */
 	UFUNCTION(BlueprintCallable, Category = "Shooting")
 	void OnFire();
-
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")

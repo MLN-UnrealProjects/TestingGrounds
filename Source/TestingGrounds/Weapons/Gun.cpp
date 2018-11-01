@@ -7,13 +7,13 @@
 
 
 // Sets default values
-AGun::AGun()
+AGun::AGun() :
+	FP_Gun { CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun")) },
+	FP_MuzzleLocation{ CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation")) }
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	// Create a gun mesh component
-	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
 	//FP_Gun->SetOnlyOwnerSee(true);			// only the owning player will see this mesh
 	FP_Gun->bCastDynamicShadow = false;
 	FP_Gun->CastShadow = false;
@@ -22,7 +22,6 @@ AGun::AGun()
 
 	SetRootComponent(FP_Gun);
 
-	FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
 	FP_MuzzleLocation->SetupAttachment(FP_Gun);
 	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));
 
@@ -30,20 +29,6 @@ AGun::AGun()
 	GunOffset = FVector(100.0f, 0.0f, 10.0f);
 }
 
-// Called when the game starts or when spawned
-void AGun::BeginPlay()
-{
-	Super::BeginPlay();
-
-
-}
-
-// Called every frame
-void AGun::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
 
 void AGun::OnFire()
 {
