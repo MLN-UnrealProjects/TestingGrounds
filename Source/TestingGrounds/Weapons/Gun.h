@@ -33,7 +33,11 @@ public:
 
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	class UAnimMontage* FireAnimation;
+	class UAnimMontage* FPFireAnimation;
+
+	/** AnimMontage to play each time we fire */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	class UAnimMontage* TPFireAnimation;
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
@@ -44,5 +48,8 @@ public:
 	FVector GunOffset;
 
 	UPROPERTY(/*EditAnywhere, BlueprintReadWrite, Category = Gameplay*/)
-	class UAnimInstance* AnimInstance;
+	class UAnimInstance* FPAnimInstance;
+
+	UPROPERTY(/*EditAnywhere, BlueprintReadWrite, Category = Gameplay*/)
+	class UAnimInstance* TPAnimInstance;
 };
