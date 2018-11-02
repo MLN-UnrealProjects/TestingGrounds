@@ -12,22 +12,28 @@ class TESTINGGROUNDS_API ATile : public AActor
 	GENERATED_BODY()
 
 public:
+
 	// Sets default values for this actor's properties
 	ATile();
 	UFUNCTION(BlueprintCallable)
-	void PlaceActors(const TSubclassOf<AActor>& ToSpawn, int32 MaxSpawnNumber, int32 MinSpawnNumber = 0);
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	void PlaceActors(TSubclassOf<AActor> ToSpawn, int32 MaxSpawnNumber = 1, int32 MinSpawnNumber = 1, float Radius = 500.0f, int32 MaxTries = 200, float MinScale = 1.f, float MaxScale = 1.f);
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Setup", meta = (AllowPrivateAccess = "true"))
-	FVector MinSpawnBound = FVector{ 0.0f,-2000.0f,200.0f };
-	UPROPERTY(EditDefaultsOnly, Category = "Setup", meta = (AllowPrivateAccess = "true"))
-	FVector MaxSpawnBound = FVector{ 4000.0f, 2000.0f,200.0f };
+	const float MaxRotation = 180.0f;
+	const float MinRotation = -180.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Setup", meta = (AllowPrivateAccess = "true"))
+	FVector MinSpawnBound = FVector{ 0.0f,-2000.0f, 100.0f };
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup", meta = (AllowPrivateAccess = "true"))
+	FVector MaxSpawnBound = FVector{ 4000.0f, 2000.0f, 100.0f };
+
+	UFUNCTION(BlueprintCallable)
+	bool IsSphereColliding(FVector WorldCenterLocation, float Radius = 500.0f) const;
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetEmptyLocalLocationOnTerrain(bool& bValidLocation, float EmptyRadius = 500.0f, int32 MaxTries = 200) const;
+
+	UFUNCTION(BlueprintCallable)
+	AActor* PlaceActor(const TSubclassOf<AActor>& ToSpawn, FVector SpawnPoint, float Rotation, float Scale);
 };
