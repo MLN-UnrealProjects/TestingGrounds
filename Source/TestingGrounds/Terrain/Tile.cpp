@@ -10,19 +10,44 @@ ATile::ATile()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 
+	//TODO: Fix child objects not being destroyed with the tile
 }
-
-void ATile::PlaceActors(TSubclassOf<AActor> ToSpawn, int32 MaxSpawnNumber, int32 MinSpawnNumber, float Radius, int32 MaxTries, float MinScale, float MaxScale)
+void ATile::PlaceActors(TSubclassOf<AActor> ToSpawn, const FTileSpawnParameters& Parameters)
 {
-	int32 NumToSpawn{ FMath::RandRange(MinSpawnNumber,MaxSpawnNumber) };
+	int32 NumToSpawn{ FMath::RandRange(Parameters.BaseParams.MinSpawnNumber,Parameters.BaseParams.MaxSpawnNumber) };
 	for (size_t i = 0; i < NumToSpawn; i++)
 	{
 		bool ValidLocation{ true };
-		float Scale = FMath::RandRange(MinScale, MaxScale);
-		FVector SpawnLocation{ GetEmptyLocalLocationOnTerrain(ValidLocation, Radius * Scale, MaxTries) };
+		FTileSpawnData Data;
+		Data.Scale = FMath::RandRange(Parameters.MinScale, Parameters.MaxScale);
+		Data.Location = GetEmptyLocalLocationOnTerrain(ValidLocation, Parameters.BaseParams.Radius * Data.Scale, Parameters.BaseParams.MaxTries);
 		if (ValidLocation)
 		{
-			PlaceActor(ToSpawn, SpawnLocation, FMath::RandRange(MinRotation, MaxRotation), Scale);
+			Data.Rotation = FMath::RandRange(MinRotation, MaxRotation);
+			PlaceActor(ToSpawn, Data);
+		}
+	}
+}
+
+void ATile::PlaceAIPawns(TSubclassOf<class APawn> ToSpawn, const FTileAIPawnSpawnParameters& Parameters)
+{
+	//TODO: Remove duplicated code between placeactors and placeaipawns
+	int32 NumToSpawn{ FMath::RandRange(Parameters.BaseParams.MinSpawnNumber,Parameters.BaseParams.MaxSpawnNumber) };
+	for (size_t i = 0; i < NumToSpawn; i++)
+	{
+		bool ValidLocation{ true };
+		FTileSpawnData Data;
+		Data.Scale = PawnScale;
+		Data.Location = GetEmptyLocalLocationOnTerrain(ValidLocation, Parameters.BaseParams.Radius * Data.Scale, Parameters.BaseParams.MaxTries);
+		if (ValidLocation)
+		{
+			Data.Rotation = FMath::RandRange(MinRotation, MaxRotation);
+			APawn* SpawnedPawn{ Cast<APawn>(PlaceActor(ToSpawn, Data)) };
+			if (SpawnedPawn)
+			{
+				SpawnedPawn->SpawnDefaultController();
+				SpawnedPawn->Tags.Push(Parameters.Tag);
+			}
 		}
 	}
 }
@@ -56,11 +81,11 @@ FVector ATile::GetEmptyLocalLocationOnTerrain(bool& bValidLocation, float EmptyR
 	return FVector::ZeroVector;
 }
 
-AActor* ATile::PlaceActor(const TSubclassOf<AActor>& ToSpawn, FVector SpawnPoint, float Rotation, float Scale)
+AActor* ATile::PlaceActor(const TSubclassOf<AActor>& ToSpawn, const FTileSpawnData& Data)
 {
 	AActor* SpawnedProp{ GetWorld()->SpawnActor(ToSpawn) };
 
-	SpawnedProp->SetActorRelativeTransform(FTransform(FRotator{ 0.0f,Rotation,0.0f }, SpawnPoint, FVector(Scale)));
+	SpawnedProp->SetActorRelativeTransform(FTransform(FRotator{ 0.0f,Data.Rotation,0.0f }, Data.Location, FVector(Data.Scale)));
 
 	SpawnedProp->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 

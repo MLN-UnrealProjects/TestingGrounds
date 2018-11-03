@@ -30,7 +30,7 @@ EBTNodeResult::Type UChooseNextWaypoint::ExecuteTask(UBehaviorTreeComponent & Ow
 					if (CurrentIndex >= Routes.Num())
 						CurrentIndex = 0;
 
-					BlackboardComponent->SetValueAsObject(WaypointKey.SelectedKeyName, Routes[CurrentIndex]);
+					BlackboardComponent->SetValueAsVector(WaypointKey.SelectedKeyName, Routes[CurrentIndex]->GetActorLocation());
 
 					success = true;
 				}
