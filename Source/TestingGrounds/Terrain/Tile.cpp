@@ -2,6 +2,9 @@
 
 #include "Tile.h"
 #include "Engine/World.h"
+#include "Runtime/Engine/Classes/AI/Navigation/NavMeshBoundsVolume.h"
+#include "ActorPool.h"
+#include "Runtime/Engine/Classes/AI/Navigation/NavigationSystem.h"
 // Sets default values
 ATile::ATile()
 {
@@ -22,6 +25,12 @@ void ATile::PlaceActors(TSubclassOf<AActor> ToSpawn, int32 MaxSpawnNumber, int32
 			PlaceActor(ToSpawn, SpawnLocation, FMath::RandRange(MinRotation, MaxRotation), Scale);
 		}
 	}
+}
+
+void ATile::SetNavMeshBoundsPool(UActorPool * NavMeshBoundsPool)
+{
+	this->NavMeshBoundsPool = NavMeshBoundsPool;
+	GetAndSetNavMeshBoundsLocation();
 }
 
 bool ATile::IsSphereColliding(FVector WorldCenterLocation, float Radius) const
@@ -56,5 +65,40 @@ AActor* ATile::PlaceActor(const TSubclassOf<AActor>& ToSpawn, FVector SpawnPoint
 	SpawnedProp->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 
 	return SpawnedProp;
+}
+
+void ATile::GetAndSetNavMeshBoundsLocation()
+{
+	if (NavMeshBoundsPool)
+	{
+		NavMeshVolume = NavMeshBoundsPool->Checkout();
+		if (NavMeshVolume)
+		{
+			NavMeshVolume->SetActorLocation(FVector{ GetActorLocation() + (MinSpawnBound + MaxSpawnBound) * 0.5f });
+			GetWorld()->GetNavigationSystem()->Build();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("The navmeshboundspool does not contain enough elements!!"));
+		}
+	}
+}
+
+void ATile::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (NavMeshVolume)
+	{
+		if (NavMeshBoundsPool)
+		{
+			NavMeshBoundsPool->Return(NavMeshVolume);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Error occurred while destroying Tile obj, navmeshbounds is invalid"));
+	}
+	NavMeshVolume = nullptr;
+	NavMeshBoundsPool = nullptr;
+	Super::EndPlay(EndPlayReason);
 }
 

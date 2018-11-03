@@ -13,5 +13,12 @@ UCLASS()
 class TESTINGGROUNDS_API AInfiniteTerrainGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+	AInfiniteTerrainGameMode();
+protected:
+	UFUNCTION(BlueprintCallable, Category = "Nav Bounds Pool")
+	void PopulateBoundsInPool();
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pool")
+	class UActorPool* NavMeshBoundsPool = nullptr;
+private:
+	void AddToPool(class ANavMeshBoundsVolume* ToAdd);
 };

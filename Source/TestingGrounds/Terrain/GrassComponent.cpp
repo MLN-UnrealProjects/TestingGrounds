@@ -4,6 +4,8 @@
 
 void UGrassComponent::BeginPlay()
 {
+	Super::BeginPlay();
+
 	int32 SpawnTimes{ FMath::RandRange(MinSpawnNumber,MaxSpawnNumber) };
 	for (size_t i = 0; i < SpawnTimes; i++)
 	{
