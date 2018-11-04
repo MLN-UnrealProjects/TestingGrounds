@@ -9,8 +9,6 @@
 ATile::ATile()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-
-	//TODO: Fix child objects not being destroyed with the tile
 }
 void ATile::PlaceActors(TSubclassOf<AActor> ToSpawn, const FTileSpawnParameters& Parameters)
 {
@@ -83,11 +81,17 @@ FVector ATile::GetEmptyLocalLocationOnTerrain(bool& bValidLocation, float EmptyR
 
 AActor* ATile::PlaceActor(const TSubclassOf<AActor>& ToSpawn, const FTileSpawnData& Data)
 {
-	AActor* SpawnedProp{ GetWorld()->SpawnActor(ToSpawn) };
+	FRotator Rotation{ 0.0f,Data.Rotation,0.0f };
+	AActor* SpawnedProp{ GetWorld()->SpawnActor(ToSpawn, &Data.Location, &Rotation) };
 
-	SpawnedProp->SetActorRelativeTransform(FTransform(FRotator{ 0.0f,Data.Rotation,0.0f }, Data.Location, FVector(Data.Scale)));
+	if (SpawnedProp)
+	{
+		SpawnedProp->SetActorScale3D(FVector(Data.Scale));
 
-	SpawnedProp->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+		SpawnedProp->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+
+		ChildActors.Push(SpawnedProp);
+	}
 
 	return SpawnedProp;
 }
@@ -102,10 +106,6 @@ void ATile::GetAndSetNavMeshBoundsLocation()
 			NavMeshVolume->SetActorLocation(FVector{ GetActorLocation() + (MinSpawnBound + MaxSpawnBound) * 0.5f });
 			GetWorld()->GetNavigationSystem()->Build();
 		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("The navmeshboundspool does not contain enough elements!!"));
-		}
 	}
 }
 
@@ -118,12 +118,13 @@ void ATile::EndPlay(const EEndPlayReason::Type EndPlayReason)
 			NavMeshBoundsPool->Return(NavMeshVolume);
 		}
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Error occurred while destroying Tile obj, navmeshbounds is invalid"));
-	}
 	NavMeshVolume = nullptr;
 	NavMeshBoundsPool = nullptr;
+	while (ChildActors.Num() != 0)
+	{
+		ChildActors.Pop()->Destroy();
+	}
+	OnTileDestroyed.Broadcast();
 	Super::EndPlay(EndPlayReason);
 }
 

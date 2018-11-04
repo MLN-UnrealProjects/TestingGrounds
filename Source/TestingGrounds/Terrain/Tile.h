@@ -51,6 +51,8 @@ struct FTileSpawnData
 	float Scale = 1.0f;
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTileDestroyed);
+
 UCLASS()
 class TESTINGGROUNDS_API ATile : public AActor
 {
@@ -67,11 +69,16 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Pool")
 	void SetNavMeshBoundsPool(class UActorPool* NavMeshBoundsPool);
+
+	UPROPERTY(BlueprintAssignable)
+	FTileDestroyed OnTileDestroyed;
 private:
 	const float MaxRotation = 180.0f;
 	const float MinRotation = -180.0f;
 	const float PawnScale = 1.0f;
 
+	UPROPERTY()
+	TArray<AActor*> ChildActors;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setup", meta = (AllowPrivateAccess = "true"))
 	FVector MinSpawnBound = FVector{ 0.0f,-2000.0f, 100.0f };

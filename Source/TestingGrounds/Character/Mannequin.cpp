@@ -57,6 +57,15 @@ void AMannequin::BeginPlay()
 	}
 }
 
+void AMannequin::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	if (Gun)
+	{
+		Gun->Destroy();
+	}
+}
+
 void AMannequin::UnPossessed()
 {
 	Super::UnPossessed();

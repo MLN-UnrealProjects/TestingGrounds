@@ -12,3 +12,8 @@ void UGrassComponent::BeginPlay()
 		AddInstance(FTransform{ FRotator::ZeroRotator ,FMath::RandPointInBox(SpawnBounds) ,FVector::OneVector });
 	}
 }
+
+void UGrassComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	ClearInstances();
+}

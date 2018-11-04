@@ -22,5 +22,6 @@ private:
 	FBox SpawnBounds = FBox{ FVector{ 0.0f, -2000.0f, 0.0f }, FVector{ 4000.0f, 2000.0f, 0.0f } };
 
 protected:
-	void BeginPlay() override;
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 };
